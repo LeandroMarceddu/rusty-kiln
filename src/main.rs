@@ -240,11 +240,7 @@ fn get_cpm(step: u8) -> f32 {
 }
 //detect if there's a stall in the program (new step has the same C as the old one)
 fn detect_stall(step: u8) -> bool {
-    if programs::biscuit::get_max_temp(step) == programs::biscuit::get_max_temp(step - 1) {
-        true
-    } else {
-        false
-    }
+    programs::biscuit::get_max_temp(step) == programs::biscuit::get_max_temp(step - 1)
 }
 //thermocouple stuff
 fn convert_temp(buf: [u8; 2]) -> f32 {
