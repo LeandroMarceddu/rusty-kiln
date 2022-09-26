@@ -60,7 +60,7 @@ fn main() -> ! {
     //led
     let mut led_pin = pins.led.into_push_pull_output();
 
-    //spi
+    /*//spi
     let _spi_sclk = pins.gpio10.into_mode::<hal::gpio::FunctionSpi>();
     let mut cs_pin = pins.gpio13.into_push_pull_output();
     let _spi_miso = pins.gpio12.into_mode::<hal::gpio::FunctionSpi>();
@@ -97,7 +97,7 @@ fn main() -> ! {
         &mut pac.RESETS,
         clocks.peripheral_clock.freq(),
     );
-    /*let interface = I2CDisplayInterface::new(i2c);
+    let interface = I2CDisplayInterface::new(i2c);
     let mut display = Ssd1306::new(interface, DisplaySize128x64, DisplayRotation::Rotate0)
         .into_buffered_graphics_mode();
     display.init().unwrap();
