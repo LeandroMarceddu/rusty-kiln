@@ -1,33 +1,33 @@
 #![no_std]
 #![no_main]
-use bit_field::BitField;
+
 use bsp::entry;
-use bsp::hal::{clocks::init_clocks_and_plls, pac, sio::Sio, watchdog::Watchdog};
-use core::ops::RangeInclusive;
-use cortex_m::prelude::*;
+use bsp::hal::{clocks::init_clocks_and_plls, pac, sio::Sio, watchdog::Watchdog, Clock};
 use defmt::*;
 use defmt_rtt as _;
-use embedded_graphics::primitives::{PrimitiveStyleBuilder, StrokeAlignment};
+use embedded_hal::digital::v2::{InputPin, OutputPin};
+use fugit::{ExtU32, RateExtU32};
+use panic_probe as _;
+use rp2040_hal as hal;
+use rp_pico as bsp;
+
+/*use core::ops::RangeInclusive;
+const THERMOCOUPLE_BITS: RangeInclusive<usize> = 2..=15;*/
+//use core::fmt::Write;
+//use embedded_hal::can::ErrorKind::Other;
+/*use embedded_graphics::primitives::{PrimitiveStyleBuilder, StrokeAlignment};
 use embedded_graphics::{
     mono_font::{ascii::FONT_7X13, MonoTextStyleBuilder},
     pixelcolor::BinaryColor,
     prelude::*,
     text::{Baseline, Text},
-};
-use embedded_hal::digital::v2::{InputPin, OutputPin};
-use embedded_hal::PwmPin;
-use fugit::{ExtU32, RateExtU32};
-use hal::Clock;
-use heapless::String;
-use nb::*;
-use nostd_async::*;
-use panic_probe as _;
-use rp2040_hal as hal;
-use rp_pico as bsp;
-use ssd1306::{prelude::*, I2CDisplayInterface, Ssd1306};
-const THERMOCOUPLE_BITS: RangeInclusive<usize> = 2..=15;
-use core::fmt::Write;
-use embedded_hal::can::ErrorKind::Other;
+};*/
+/*use heapless::String;
+use nb::*;*/
+//use embedded_hal::PwmPin;
+//use cortex_m::prelude::*;
+//use bit_field::BitField;
+//use ssd1306::{prelude::*, I2CDisplayInterface, Ssd1306};
 mod programs;
 
 #[entry]
@@ -222,7 +222,7 @@ fn main() -> ! {
             one_min = timer.get_counter() + 60000000;
         }
         thermocouple = setpoint_c.clone();
-        info!(
+        println!(
             "Set {} min {} reached {} step {}",
             setpoint_c, count_minutes, reached, step
         );
@@ -243,7 +243,7 @@ fn detect_stall(step: u8) -> bool {
     programs::biscuit::get_max_temp(step) == programs::biscuit::get_max_temp(step - 1)
 }
 //thermocouple stuff
-fn convert_temp(buf: [u8; 2]) -> f32 {
+/*fn convert_temp(buf: [u8; 2]) -> f32 {
     let raw = (buf[0] as u16) << 8 | (buf[1] as u16);
     convert(bits_to_i16(raw.get_bits(THERMOCOUPLE_BITS), 14, 4, 2))
 }
@@ -258,4 +258,4 @@ fn bits_to_i16(bits: u16, len: usize, divisor: i16, shift: usize) -> i16 {
 fn convert(count: i16) -> f32 {
     let count = count as f32;
     count * 0.25
-}
+}*/

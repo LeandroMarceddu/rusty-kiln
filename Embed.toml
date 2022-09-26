@@ -1,3 +1,4 @@
+
 [default.probe]
 protocol = "Swd"
 speed = 20000
@@ -33,6 +34,7 @@ timeout = 3000
 show_timestamps = true
 log_enabled = false
 log_path = "./logs"
+
 
 [default.gdb]
 enabled = false
