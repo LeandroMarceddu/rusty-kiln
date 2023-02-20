@@ -1,4 +1,4 @@
-pub mod biscuit2 {
+pub mod biscuit {
     pub fn get_steps() -> u8 {
         6
     }
@@ -7,8 +7,8 @@ pub mod biscuit2 {
             1 => 100.0,
             2 => 150.0,
             3 => 700.0,
-            4 => 1100.0,
-            5 => 1100.0,
+            4 => 1040.0,
+            5 => 1040.0,
             0_u8 | 6_u8..=u8::MAX => 0.0,
         }
     }
@@ -18,12 +18,12 @@ pub mod biscuit2 {
             2 => 2.0,
             3 => 5.5,
             4 => 1.5,
-            5 => 0.5,
+            5 => 0.25,
             0_u8 | 6_u8..=u8::MAX => 0.0,
         }
     }
 }
-pub mod biscuit {
+pub mod biscuit2 {
     pub fn get_steps() -> u8 {
         4
     }
