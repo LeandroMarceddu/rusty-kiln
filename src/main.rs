@@ -132,7 +132,6 @@ fn main() -> ! {
     spi.transfer(&mut buf).unwrap();
     cs_pin.set_high().unwrap();
     let mut step: u8 = 1;
-    //let thermocouple: f32 = convert_temp(buf); // convert_temp(buf);
     let mut setpoint_c: f32 = convert_temp(buf); //set to curr temp pre-loop
     let mut reached: bool = false;
     let mut count_minutes: u8 = 0;
@@ -285,7 +284,7 @@ fn get_cpm(step: u8) -> f32 {
         0.0
     } else {
         (programs::biscuit::get_max_temp(step) - programs::biscuit::get_max_temp(step - 1))
-            / (programs::biscuit::get_duration_step(step) * (3600000000.0 / 60000000.0))
+            / (programs::biscuit::get_duration_step(step) * 60.0)
     }
 }
 //detect if there's a stall in the program (new step has the same C as the old one)

@@ -47,11 +47,6 @@
             "name": "attach",
             "cwd": "${workspaceFolder}",
             "chip": "RP2040", //!MODIFY
-            "flashingConfig": {
-                "flashingEnabled": false,
-                "resetAfterFlashing": false,
-                "haltAfterReset": false
-            },
             "coreConfigs": [
                 {
                     "coreIndex": 0,
