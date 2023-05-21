@@ -1,0 +1,9 @@
+{
+    "rust-analyzer.cargo.target": "thumbv6m-none-eabi",
+    "rust-analyzer.checkOnSave.allTargets": false,
+    "rust-analyzer.check.extraArgs": [
+        "--target",
+        "thumbv6m-none-eabi"
+    ],
+    "editor.formatOnSave": true
+}
