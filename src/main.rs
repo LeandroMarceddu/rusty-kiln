@@ -4,15 +4,17 @@
 #![feature(async_fn_in_trait)]
 #![allow(incomplete_features)]
 
-use core::str;
+use core::str::from_utf8;
 
 use cyw43_pio::PioSpi;
 use defmt::*;
 use embassy_executor::Spawner;
-use embassy_net::Stack;
+use embassy_net::tcp::TcpSocket;
+use embassy_net::{Config, Stack, StackResources};
 use embassy_rp::gpio::{Level, Output};
 use embassy_rp::peripherals::{DMA_CH0, PIN_23, PIN_25, PIO0};
 use embassy_rp::pio::Pio;
+use embedded_io::asynch::Write;
 use static_cell::StaticCell;
 use {defmt_rtt as _, panic_probe as _};
 
@@ -70,7 +72,7 @@ async fn main(spawner: Spawner) {
     );
 
     let state = singleton!(cyw43::State::new());
-    let (_net_device, mut control, runner) = cyw43::new(state, pwr, spi, fw).await;
+    let (net_device, mut control, runner) = cyw43::new(state, pwr, spi, fw).await;
     unwrap!(spawner.spawn(wifi_task(runner)));
 
     control.init(clm).await;
@@ -78,10 +80,78 @@ async fn main(spawner: Spawner) {
         .set_power_management(cyw43::PowerManagementMode::PowerSave)
         .await;
 
-    let mut scanner = control.scan().await;
-    while let Some(bss) = scanner.next().await {
-        if let Ok(ssid_str) = str::from_utf8(&bss.ssid) {
-            info!("scanned {} == {:x}", ssid_str, bss.bssid);
+    let config = Config::Dhcp(Default::default());
+    //let config = embassy_net::Config::Static(embassy_net::Config {
+    //    address: Ipv4Cidr::new(Ipv4Address::new(192, 168, 69, 2), 24),
+    //    dns_servers: Vec::new(),
+    //    gateway: Some(Ipv4Address::new(192, 168, 69, 1)),
+    //});
+
+    // Generate random seed
+    let seed = 0x0123_4567_89ab_cdef; // chosen by fair dice roll. guarenteed to be random.
+
+    // Init network stack
+    let stack = &*singleton!(Stack::new(
+        net_device,
+        config,
+        singleton!(StackResources::<2>::new()),
+        seed
+    ));
+
+    unwrap!(spawner.spawn(net_task(stack)));
+
+    loop {
+        //control.join_open(env!("WIFI_NETWORK")).await;
+        match control.join_wpa2("telenet-2486F1C", "xcu2Uyucsesf").await {
+            Ok(_) => break,
+            Err(err) => {
+                info!("join failed with status={}", err.status);
+            }
+        }
+    }
+
+    // And now we can use it!
+
+    let mut rx_buffer = [0; 4096];
+    let mut tx_buffer = [0; 4096];
+    let mut buf = [0; 4096];
+
+    loop {
+        let mut socket = TcpSocket::new(stack, &mut rx_buffer, &mut tx_buffer);
+        socket.set_timeout(Some(embassy_net::SmolDuration::from_secs(10)));
+
+        control.gpio_set(0, false).await;
+        info!("Listening on TCP:1234...");
+        if let Err(e) = socket.accept(80).await {
+            warn!("accept error: {:?}", e);
+            continue;
+        }
+
+        info!("Received connection from {:?}", socket.remote_endpoint());
+        control.gpio_set(0, true).await;
+
+        loop {
+            let n = match socket.read(&mut buf).await {
+                Ok(0) => {
+                    warn!("read EOF");
+                    break;
+                }
+                Ok(n) => n,
+                Err(e) => {
+                    warn!("read error: {:?}", e);
+                    break;
+                }
+            };
+
+            info!("rxd {}", from_utf8(&buf[..n]).unwrap());
+
+            match socket.write_all(&buf[..n]).await {
+                Ok(()) => {}
+                Err(e) => {
+                    warn!("write error: {:?}", e);
+                    break;
+                }
+            };
         }
     }
 }
