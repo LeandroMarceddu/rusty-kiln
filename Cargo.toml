@@ -1,13 +1,8 @@
 [package]
+name = "cyw43-example-rpi-pico-w"
+version = "0.1.0"
 edition = "2021"
-name = "rusty-kiln"
-version = "0.2.0"
-license = "MIT OR Apache-2.0"
 
-[[bin]]
-name = "rusty-kiln"
-test = false
-bench = false
 
 [dependencies]
 cyw43 = { git = "https://github.com/embassy-rs/cyw43", features = ["defmt", "firmware-logs"] }
@@ -30,6 +25,7 @@ futures = { version = "0.3.17", default-features = false, features = ["async-awa
 embedded-io = { version = "0.4.0", features = ["async", "defmt"] }
 heapless = "0.7.15"
 
+
 [patch.crates-io]
 embassy-executor = { git = "https://github.com/embassy-rs/embassy", rev = "82f7e104d90a6628d1873017ea5ef6a7afb3b3f7" }
 embassy-time = { git = "https://github.com/embassy-rs/embassy", rev = "82f7e104d90a6628d1873017ea5ef6a7afb3b3f7" }
@@ -40,6 +36,12 @@ embassy-net = { git = "https://github.com/embassy-rs/embassy", rev = "82f7e104d9
 embassy-net-driver = { git = "https://github.com/embassy-rs/embassy", rev = "82f7e104d90a6628d1873017ea5ef6a7afb3b3f7" }
 embassy-net-driver-channel = { git = "https://github.com/embassy-rs/embassy", rev = "82f7e104d90a6628d1873017ea5ef6a7afb3b3f7" }
 
+[profile.dev]
+debug = 2
+debug-assertions = true
+opt-level = 1
+overflow-checks = true
+
 [profile.release]
 codegen-units = 1
 debug = 1
@@ -47,4 +49,19 @@ debug-assertions = false
 incremental = false
 lto = 'fat'
 opt-level = 's'
+overflow-checks = false
+
+# do not optimize proc-macro crates = faster builds from scratch
+[profile.dev.build-override]
+codegen-units = 8
+debug = false
+debug-assertions = false
+opt-level = 0
+overflow-checks = false
+
+[profile.release.build-override]
+codegen-units = 8
+debug = false
+debug-assertions = false
+opt-level = 0
 overflow-checks = false
